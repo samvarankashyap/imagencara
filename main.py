@@ -14,7 +14,7 @@ def server_static(filename):
 
 @route('/')
 def index():
-    return template('ui')
+    return template('index')
 
 @route('/clusterimage',  method='POST')
 def clusterimage():
