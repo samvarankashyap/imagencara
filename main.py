@@ -14,9 +14,9 @@ def server_static(filename):
 
 @route('/')
 def index():
-    return template('index')
+    return template('login')
 
-@route('/clusterimage',  method='POST')
+@route('/login',  method='POST')
 def clusterimage():
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         posted_dict =  request.forms.dict
