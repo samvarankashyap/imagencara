@@ -23,13 +23,16 @@ def login():
         data = json.dumps(posted_dict)
         if authenticate(posted_dict):
             auth_flag = 1
-            data = "authenticuser"
-        resp = HTTPResponse(body=data,status=200)
-        return resp
-    else:
-        return 'This is a normal request'
+            return template('index')
+        else:
+            data = "1"
+            resp = HTTPResponse(body=data,status=200)
+            return resp
 
 def authenticate(login_dict):
+    username = posted_dict["username"][0]
+    password =  posted_dict["password"][0]
+    
     return True
 
 run(host='0.0.0.0', port=8000)
