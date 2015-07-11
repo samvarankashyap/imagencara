@@ -67,6 +67,19 @@
                         });
         });
        */
+          $("#postcomment").click(function(){
+            console.log("all pictures btn clicked ");
+                   var postObj = {};
+                   postObj["username"] = $("#cusername").val();
+                   postObj["postid"] = $("#cpostid").val();
+                   postObj["comment"] = $("#comment_text").val();
+                   $.post("/postcomment",postObj,
+                        function(data, status){
+                                //$("#content").text(data);
+                                console.log(data);
+                        });
+
+             })
 
 });
 
@@ -83,6 +96,12 @@
                                 $( "#allpictures" ).click();
                         });
            }
+ function comment(post_id) {
+             $("#cusername").val("samvaran@gmail.com");
+             $("#cpostid").val(post_id);
+             console.log("comment function reached ");
+           }
+
 
 
     </script>
@@ -132,11 +151,39 @@
 									</button>
 								</div>
 							</div>
-							
 						</div>
-						
 					</div>
-					
+                                         <div class="modal fade" id="commentmodal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                                <div class="modal-header">
+
+                                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                                                                x
+                                                                        </button>
+                                                                        <h4 class="modal-title" id="myModalLabel">
+                                                                                Comment
+                                                                        </h4>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                        <input id="cusername" type="hidden" value="">
+                                                                        <input id="cpostid" type="hidden" value="">
+                                                                        Comment: <input type="text" id="comment_text"><br>
+                                                                        <input type="button" class="btn" id="postcomment">
+                                                                        
+                                                                </div>
+                                                                <div class="modal-footer">
+
+                                                                        <button type="button" class="btn btn-default" data-dismiss="modal">
+                                                                                Close
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-primary">
+                                                                                Save changes
+                                                                        </button>
+                                                                </div>
+                                                        </div>
+                                                </div>
+                                        </div>
 				</div>
 				<div class="col-md-10">
                                          <h2>Picture Feed</h2>

@@ -63,6 +63,7 @@ def uploadimage():
 
 @route('/getmypictures',  method='POST')
 def getmypictures():
+    #pdb.set_trace()
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         posted_dict =  request.forms.dict
         username = posted_dict["username"][0]
@@ -71,14 +72,20 @@ def getmypictures():
         html_string = ""
         for post in posts:
             img1 = post['image_data']
+            comments = post['comments']
+            c_string ="<div><h5>Comments on Image </h5>"
+            for comment in comments:
+                c_string += "username:<br>"+comment['username']+"<br>"+"comments:<br>"+comment['comment']+"<br>"
+            c_string += "</div>"
             decode=img1.decode()
             img_tag = '<img alt="sample" src="data:image/jpeg;base64,{0}">'.format(decode)
             post_id = "'"+post['post_id']+"'"
             button_tag = "<button onclick=\"deleteimage("+post_id+")\" class='btn'>Delete Image</button>"
-            html_string += img_tag+"<br>"+button_tag+"<br>"
+            comment_function="\"comment('"+post['post_id']+"')\""
+            comment_tag = "<a id='comment' href='#commentmodal' role='button' class='btn' data-toggle='modal' onclick="+comment_function+">Comment</a>"
+            html_string += img_tag+"<br>"+button_tag+comment_tag+"<br>"+c_string
         resp = HTTPResponse(body=html_string,status0=200)
         return resp
-
 
 @route('/getallpictures',  method='POST')
 def getallpictures():
@@ -90,10 +97,17 @@ def getallpictures():
         html_string = ""
         for post in posts:
             img1 = post['image_data']
+            comments = post['comments']
+            c_string ="<div><h5>Comments on Image </h5>"
+            for comment in comments:
+                c_string += "username:<br>"+comment['username']+"<br>"+"comments:<br>"+comment['comment']+"<br>"
+            c_string += "</div>"
             decode=img1.decode()
             img_tag = '<img alt="sample" src="data:image/jpeg;base64,{0}">'.format(decode)
             post_id = "'"+post['post_id']+"'"
-            html_string += img_tag+"<br>"
+            comment_function="\"comment('"+post['post_id']+"')\""
+            comment_tag = "<a id='comment' href='#commentmodal' role='button' class='btn' data-toggle='modal' onclick="+comment_function+">Comment</a>"
+            html_string += img_tag+"<br>"+comment_tag+"<br>"+c_string
         resp = HTTPResponse(body=html_string,status0=200)
         return resp
 
@@ -126,6 +140,21 @@ def deletepost():
         data = str(output)
         resp = HTTPResponse(body=data,status=200)
         return resp
+
+@route('/postcomment',  method='POST')
+def postcomment():
+    #pdb.set_trace()
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        posted_dict =  request.forms.dict
+        user_name = posted_dict["username"][0]
+        post_id = posted_dict["postid"][0]
+        comment = posted_dict["comment"][0]
+        output = comment_post(user_name,post_id,comment)
+        data = str(output)
+        resp = HTTPResponse(body=data,status=200)
+        return resp
+
+
 
 def authenticate(posted_dict):
     username = posted_dict["username"][0]
