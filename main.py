@@ -1,33 +1,36 @@
-from bottle import route, run, template
-from bottle import route, request, response, template, HTTPResponse
 import uuid
-from bottle import static_file
 import csv
 import random
-import json
-import pymongo
-from pymongo import MongoClient
 import base64
 import md5
 import uuid
 import os
+import json
+import pymongo
+from pymongo import MongoClient
+from bottle import route, run, template
+from bottle import request, response, HTTPResponse
+from bottle import static_file
 from datetime import datetime
+
 client = MongoClient()
 db = client['test']
 con = pymongo.MongoClient()
 import pdb
 user_coll = con.test.user
 post_coll = con.test.posts
-
 auth_flag = 0
+
 
 @route('/static/<filename>')
 def server_static(filename):
     return static_file(filename, root="static")
 
+
 @route('/')
 def index():
     return template('login')
+
 
 @route('/login',  method='POST')
 def login():
@@ -40,6 +43,7 @@ def login():
             data = "Invalid username/password"
         resp = HTTPResponse(body=data,status=200)
         return resp
+
 
 @route('/uploadimage',  method='POST')
 def uploadimage():
@@ -56,10 +60,9 @@ def uploadimage():
         post_id = str(uuid.uuid1())
         output = insert_post(user_name,post_id,image_data)
         output = str(output)
-        #posted_dict =  request.forms.dict
-        #data = "Invalid username/password"
         resp = HTTPResponse(body=output,status=200)
         return resp
+
 
 @route('/getmypictures',  method='POST')
 def getmypictures():
@@ -68,7 +71,6 @@ def getmypictures():
         posted_dict =  request.forms.dict
         username = posted_dict["username"][0]
         posts = get_posts_by_username(username)
-        #print posts
         html_string = ""
         for post in posts:
             img1 = post['image_data']
@@ -87,13 +89,13 @@ def getmypictures():
         resp = HTTPResponse(body=html_string,status0=200)
         return resp
 
+
 @route('/getallpictures',  method='POST')
 def getallpictures():
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         posted_dict =  request.forms.dict
         username = posted_dict["username"][0]
         posts = get_all_posts(username)
-        #print posts
         html_string = ""
         for post in posts:
             img1 = post['image_data']
@@ -110,6 +112,7 @@ def getallpictures():
             html_string += img_tag+"<br>"+comment_tag+"<br>"+c_string
         resp = HTTPResponse(body=html_string,status0=200)
         return resp
+
 
 @route('/main')
 def index():
@@ -141,9 +144,9 @@ def deletepost():
         resp = HTTPResponse(body=data,status=200)
         return resp
 
+
 @route('/postcomment',  method='POST')
 def postcomment():
-    #pdb.set_trace()
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         posted_dict =  request.forms.dict
         user_name = posted_dict["username"][0]
@@ -155,7 +158,6 @@ def postcomment():
         return resp
 
 
-
 def authenticate(posted_dict):
     username = posted_dict["username"][0]
     password =  posted_dict["password"][0]
@@ -163,14 +165,17 @@ def authenticate(posted_dict):
         return True
     return False
 
+
 def initialise():
     db.create_collection("user")
     db.create_collection("posts")
+
 
 def insert_user(username,password):
     password_hash = str(md5.new(password).hexdigest())
     output =user_coll.save({"username":username,"password":password_hash})
     return output
+
 
 def retrieve_image(request):
     data = db.database_name.find()
@@ -181,6 +186,7 @@ def retrieve_image(request):
     img_tag = '<img alt="sample" src="data:image/png;base64,{0}">'.format(decode)
     return HttpResponse(img_tag)
 
+
 def register_username(username,password):
     record = user_coll.find_one({"username": username})
     if record == None:
@@ -188,6 +194,7 @@ def register_username(username,password):
         return output
     else: 
         return False
+
 
 def is_authentic(username,password):
     record = user_coll.find_one({"username": username})
@@ -204,6 +211,7 @@ def get_posts_by_username(username):
         posts.append(post)
     return posts
 
+
 def insert_post(username,post_id,image_data):
     post_dict = {}
     post_dict['username']=username
@@ -215,12 +223,14 @@ def insert_post(username,post_id,image_data):
     output = post_coll.save(post_dict)
     return output
 
+
 def delete_post(username,post_id):
     delete_post_dict = {}
     delete_post_dict["username"]=username
     delete_post_dict["post_id"]=post_id
     output = post_coll.remove(delete_post_dict)
     return output
+
 
 def comment_post(username,post_id,comment):
     #Fetch our updated document
@@ -233,10 +243,12 @@ def comment_post(username,post_id,comment):
     output = post_coll.update({"post_id":post_id},given_dic)
     return output
 
+
 def get_all_posts(username):
     posts = []
     for post in post_coll.find():
         posts.append(post)
     return posts
+
 
 run(host='0.0.0.0', port=8000)
